@@ -10,7 +10,7 @@ import {
 
 const App = () => {
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div className="flex justify-center">
       <YMaps>
         <Map
           width={500}
