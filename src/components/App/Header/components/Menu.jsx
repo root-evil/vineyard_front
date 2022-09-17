@@ -1,4 +1,4 @@
-import { IconButton, useMediaQuery } from "@material-ui/core";
+import { IconButton } from "@material-ui/core";
 import { ExitToApp, Person } from "@material-ui/icons";
 import { useTheme } from "@material-ui/styles";
 import clsx from "clsx";
@@ -59,8 +59,6 @@ const SelectTheme = ({ setOpen }) => {
 };
 
 const Menu = () => {
-  const theme = useTheme();
-  const xs = useMediaQuery(theme.breakpoints.down("xs"));
   const [open, setOpen] = useState(false);
 
   const [mainBlock, setMainBlock] = useState(null);
@@ -70,22 +68,20 @@ const Menu = () => {
 
   return (
     <nav className="flex justify-end items-center w-full px-4">
-      {!xs && (
-        <div className="relative" ref={setMainBlock}>
-          <IconButton
-            color="inherit"
-            onClick={() => setOpen((prevState) => !prevState)}
-          >
-            <Person fontSize="medium" color="primary" />
+      <div className="relative" ref={setMainBlock}>
+        <IconButton
+          color="inherit"
+          onClick={() => setOpen((prevState) => !prevState)}
+        >
+          <Person fontSize="medium" color="primary" />
 
-            <ShowAndHide show={open}>
-              <div ref={setAbsoluteBlock}>
-                <SelectTheme setOpen={setOpen} />
-              </div>
-            </ShowAndHide>
-          </IconButton>
-        </div>
-      )}
+          <ShowAndHide show={open}>
+            <div ref={setAbsoluteBlock}>
+              <SelectTheme setOpen={setOpen} />
+            </div>
+          </ShowAndHide>
+        </IconButton>
+      </div>
 
       <IconButton color="inherit">
         <ExitToApp fontSize="medium" color="primary" />

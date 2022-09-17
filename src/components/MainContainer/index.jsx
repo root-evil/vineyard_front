@@ -1,4 +1,4 @@
-import { Drawer, IconButton } from "@material-ui/core";
+import { Drawer, IconButton, useMediaQuery, useTheme } from "@material-ui/core";
 import { CloseOutlined } from "@material-ui/icons";
 import { parse } from "query-string";
 import React, {
@@ -25,12 +25,15 @@ import {
  */
 
 export default memo(() => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(600);
   const [openDetails, setOpenDetails] = useState(false);
   const params = parse(location.search);
+
+  const xs = useMediaQuery(theme.breakpoints.down("xs"));
 
   const details = useQueryTerritoryDetails(params, "");
 
@@ -66,15 +69,13 @@ export default memo(() => {
   return (
     <>
       <div className="h-full w-full">
-        <div className="flex h-full">
+        <div className="flex flex-col h-full sm:flex-row">
           <div
-            className="w-full h-full max-w-[300px] shadow-2xl border-r-2 border-[rgb(0 0 0 / 0.2)]"
+            className="w-full h-full max-w-full shadow-2xl border-r-2 border-[rgb(0 0 0 / 0.2)] sm:max-w-[300px]"
             id="filters"
           >
             <div className="flex flex-col mt-2 text-base">
-              <h1 className="text-center text-xl border-b  border-b-gray-200pb-1">
-                Фильтры
-              </h1>
+              <h1 className="text-center text-xl mb-6">Фильтры</h1>
 
               <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
                 Фильтр 1
@@ -94,9 +95,10 @@ export default memo(() => {
             </div>
           </div>
 
-          <div>
+          <div className="w-full">
             <YMaps>
               <Map
+                key={width}
                 width={width}
                 height={height}
                 instanceRef={ref}
@@ -149,7 +151,12 @@ export default memo(() => {
           navigate("/");
         }}
       >
-        <div className="relative w-[25rem] max-w-[25rem] p-4">
+        <div
+          style={{
+            width: xs ? document.documentElement.clientWidth : "25rem",
+          }}
+          className="relative  p-4"
+        >
           <IconButton
             className="!absolute !right-[15px] !top-0 !p-[10px]"
             onClick={() => {
