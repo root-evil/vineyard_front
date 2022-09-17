@@ -22,7 +22,7 @@ export default memo(() => {
     <div className="h-full w-full">
       <div className="flex h-full">
         <div
-          className="w-full h-full max-w-[300px] shadow-2xl mr-3"
+          className="w-full h-full max-w-[300px] shadow-2xl border-r-2 border-[rgb(0 0 0 / 0.2)]"
           id="filters"
         >
           <div className="flex flex-col mt-2 text-base">
