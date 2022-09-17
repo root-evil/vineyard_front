@@ -23,7 +23,29 @@ export default memo(() => {
         <div
           className="w-full h-full max-w-[300px] shadow-2xl mr-3"
           id="filters"
-        ></div>
+        >
+          <div className="flex flex-col mt-2 text-base">
+            <h1 className="text-center text-xl border-b  border-b-gray-200pb-1">
+              Фильтры
+            </h1>
+
+            <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+              Фильтр 1
+            </span>
+            <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+              Фильтр 2
+            </span>
+            <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+              Фильтр 3
+            </span>
+            <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+              Фильтр 4
+            </span>
+            <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+              Фильтр 5
+            </span>
+          </div>
+        </div>
 
         <div>
           <YMaps>
