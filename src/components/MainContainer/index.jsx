@@ -18,6 +18,7 @@ import {
   YMaps,
   ZoomControl,
 } from "react-yandex-maps";
+import { useQueryTerritorys } from "../../quieries/useQueryTerritorys";
 
 /* 
  ref.current?.setCenter([55.7, 37.57])
@@ -31,6 +32,7 @@ export default memo(() => {
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(600);
   const [openDetails, setOpenDetails] = useState(false);
+  const allPolygons = useQueryTerritorys({});
   const params = parse(location.search);
 
   const xs = useMediaQuery(theme.breakpoints.down("xs"));
@@ -55,8 +57,12 @@ export default memo(() => {
 
         navigate(`/?lon=${params?.lon}&lat=${params?.lat}`);
       }, 100);
+    } else if (allPolygons?.data?.center) {
+      setTimeout(() => {
+        ref.current?.setCenter(allPolygons?.data?.center);
+      }, 100);
     }
-  }, [navigate, params?.lat, params?.lon]);
+  }, [allPolygons?.data?.center, navigate, params?.lat, params?.lon]);
 
   useEffect(() => {
     const el = document.getElementById("filters");
@@ -107,8 +113,10 @@ export default memo(() => {
                 height={height}
                 instanceRef={ref}
                 defaultState={{
-                  center: [45.19697869737061, 39.1890641332174],
-                  zoom: 8.4,
+                  center: allPolygons?.data?.center || [
+                    45.19697869737061, 39.1890641332174,
+                  ],
+                  zoom: 10,
                 }}
               >
                 <TypeSelector />
@@ -117,6 +125,28 @@ export default memo(() => {
 
                 {/* <Placemark geometry={[55.7, 37.57]} /> */}
 
+                {allPolygons?.data?.data?.map((item) => {
+                  return (
+                    <Polygon
+                      key={item?.id}
+                      onClick={() => {
+                        setOpenDetails(true);
+                        ref.current?.setCenter(item?.center);
+                        navigate(
+                          `/?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                        );
+                      }}
+                      options={{
+                        hintContent: "Polygon",
+                        fillColor: "#6699ff",
+                        strokeWidth: 2,
+                        opacity: 0.5,
+                      }}
+                      geometry={[item?.geo]}
+                    />
+                  );
+                })}
+                {/* 
                 <Polygon
                   onClick={() => {
                     setOpenDetails(true);
@@ -139,7 +169,7 @@ export default memo(() => {
                       [46.222824169574056, 39.5119293629748],
                     ],
                   ]}
-                />
+                /> */}
               </Map>
             </YMaps>
           </div>

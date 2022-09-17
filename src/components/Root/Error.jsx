@@ -23,7 +23,7 @@ const Error = view(() => {
   if (isBadRequest) {
     return (
       <Dialog open={Boolean(errors.error)}>
-        <DialogTitle>Error</DialogTitle>
+        <DialogTitle>Ошибка</DialogTitle>
 
         <DialogContent>
           <div className="text-base">

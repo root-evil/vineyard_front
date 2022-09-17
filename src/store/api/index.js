@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Buffer } from "buffer";
 import { is } from "../../helpers/is";
-import errors from "../modules/errors";
+import errors from "../errors";
 
 axios.interceptors.response.use(
   (response) => {
