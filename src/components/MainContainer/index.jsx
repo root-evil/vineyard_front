@@ -1,8 +1,16 @@
 import { Drawer, IconButton } from "@material-ui/core";
 import { CloseOutlined } from "@material-ui/icons";
 import { parse } from "query-string";
-import React, { memo, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useQueryTerritoryDetails } from "../../quieries/useQueryTerritoryDetails";
+
 import {
   Map,
   Polygon,
@@ -24,6 +32,8 @@ export default memo(() => {
   const [openDetails, setOpenDetails] = useState(false);
   const params = parse(location.search);
 
+  const details = useQueryTerritoryDetails(params, "");
+
   const ref = useRef();
 
   useLayoutEffect(() => {
@@ -41,7 +51,17 @@ export default memo(() => {
     }
   }, [navigate, params?.lat, params?.lon]);
 
-  console.log(params);
+  useEffect(() => {
+    const el = document.getElementById("filters");
+
+    const init = () => {
+      setWidth(document.documentElement.clientWidth - el.clientWidth - 15);
+      setHeight(el.clientHeight);
+    };
+
+    document.addEventListener("resize", init);
+    window.addEventListener("resize", init);
+  }, []);
 
   return (
     <>
