@@ -10,11 +10,11 @@ export default memo(() => {
         style={{ backgroundColor: theme.palette.primary.main }}
         className={`relative flex shrink-0`}
       >
-        <div className="flex flex-col flex-1 items-center pt-8 px-8 pb-4">
+        <div className="flex flex-col flex-1 items-center pt-2 px-2">
           <div>
             <p
               style={{ color: theme.palette.primary.contrastText }}
-              className={`mt-12 w-full text-center text-white text-sm}`}
+              className={`w-full text-center text-white text-sm m-0}`}
             >
               © 2022 Root Evil Ltd.
             </p>
