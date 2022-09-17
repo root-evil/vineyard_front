@@ -48,9 +48,13 @@ export default memo(() => {
 
   useLayoutEffect(() => {
     if (params?.lat && params?.lon) {
-      setOpenDetails(true);
+      setTimeout(() => {
+        setOpenDetails(true);
 
-      navigate(`/?lon=${params?.lon}&lat=${params?.lat}`);
+        ref.current?.setCenter([params?.lon, params?.lat]);
+
+        navigate(`/?lon=${params?.lon}&lat=${params?.lat}`);
+      }, 100);
     }
   }, [navigate, params?.lat, params?.lon]);
 
