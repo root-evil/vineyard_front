@@ -1,0 +1,153 @@
+import { Drawer, IconButton } from "@material-ui/core";
+import { CloseOutlined } from "@material-ui/icons";
+import { parse } from "query-string";
+import React, { memo, useLayoutEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Map,
+  Polygon,
+  TypeSelector,
+  YMaps,
+  ZoomControl,
+} from "react-yandex-maps";
+
+/* 
+ ref.current?.setCenter([55.7, 37.57])
+ 
+ */
+
+export default memo(() => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [width, setWidth] = useState(500);
+  const [height, setHeight] = useState(600);
+  const [openDetails, setOpenDetails] = useState(false);
+  const params = parse(location.search);
+
+  const ref = useRef();
+
+  useLayoutEffect(() => {
+    const el = document.getElementById("filters");
+
+    setWidth(document.documentElement.clientWidth - el.clientWidth - 15);
+    setHeight(el.clientHeight);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (params?.lat && params?.lon) {
+      setOpenDetails(true);
+
+      navigate(`/?lon=${params?.lon}&lat=${params?.lat}`);
+    }
+  }, [navigate, params?.lat, params?.lon]);
+
+  console.log(params);
+
+  return (
+    <>
+      <div className="h-full w-full">
+        <div className="flex h-full">
+          <div
+            className="w-full h-full max-w-[300px] shadow-2xl border-r-2 border-[rgb(0 0 0 / 0.2)]"
+            id="filters"
+          >
+            <div className="flex flex-col mt-2 text-base">
+              <h1 className="text-center text-xl border-b  border-b-gray-200pb-1">
+                Фильтры
+              </h1>
+
+              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+                Фильтр 1
+              </span>
+              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+                Фильтр 2
+              </span>
+              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+                Фильтр 3
+              </span>
+              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+                Фильтр 4
+              </span>
+              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
+                Фильтр 5
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <YMaps>
+              <Map
+                width={width}
+                height={height}
+                instanceRef={ref}
+                defaultState={{
+                  center: [45.19697869737061, 39.1890641332174],
+                  zoom: 8.4,
+                }}
+              >
+                <TypeSelector />
+
+                <ZoomControl />
+
+                {/* <Placemark geometry={[55.7, 37.57]} /> */}
+
+                <Polygon
+                  onClick={() => {
+                    setOpenDetails(true);
+                    ref.current?.setCenter([
+                      45.333314260624476, 39.38350121491304,
+                    ]);
+                    navigate("/?lon=45.333314260624476&lat=39.38350121491304");
+                  }}
+                  options={{
+                    hintContent: "Polygon",
+                    fillColor: "#6699ff",
+                    strokeWidth: 2,
+                    opacity: 0.5,
+                  }}
+                  geometry={[
+                    [
+                      [46.15385570157126, 39.12785595979559],
+                      [45.24365765915663, 39.25547737240801],
+                      [45.333314260624476, 39.38350121491304],
+                      [46.222824169574056, 39.5119293629748],
+                    ],
+                  ]}
+                />
+              </Map>
+            </YMaps>
+          </div>
+        </div>
+      </div>
+
+      <Drawer
+        anchor="right"
+        variant="persistent"
+        open={openDetails}
+        onClose={() => {
+          setOpenDetails(false);
+          navigate("/");
+        }}
+      >
+        <div className="relative w-[25rem] max-w-[25rem] p-4">
+          <IconButton
+            className="!absolute !right-[15px] !top-0 !p-[10px]"
+            onClick={() => {
+              setOpenDetails(false);
+              navigate("/");
+            }}
+          >
+            <CloseOutlined />
+          </IconButton>
+
+          <h2 className="text-lg mt-6 mb-4"> Детали территории</h2>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">Долгота, широта:</span>
+            <span className="text-left">45, 39</span>
+          </div>
+        </div>
+      </Drawer>
+    </>
+  );
+});

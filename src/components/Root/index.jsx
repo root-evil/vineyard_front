@@ -2,11 +2,12 @@ import { CssBaseline } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/styles";
 import { view } from "@risingstack/react-easy-state";
 import React, { useLayoutEffect } from "react";
+import ui from "../../store/ui";
+import { greenTheme } from "../../theme/greenTheme";
+import { mainTheme } from "../../theme/mainTheme";
+import { redTheme } from "../../theme/redTheme";
 import App from "../App";
-import ui from "../store/ui";
-import { greenTheme } from "../theme/greenTheme";
-import { mainTheme } from "../theme/mainTheme";
-import { redTheme } from "../theme/redTheme";
+import Error from "./Error";
 
 export default view(() => {
   const { themeCurrent } = ui;
@@ -46,6 +47,8 @@ export default view(() => {
   return (
     <ThemeProvider theme={themeReducer()}>
       <CssBaseline />
+
+      <Error />
 
       <App />
     </ThemeProvider>

@@ -4,8 +4,8 @@ import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter as Router } from "react-router-dom";
+import Root from "./components/Root";
 import "./global.css";
-import Root from "./Root";
 
 const queryClient = new QueryClient();
 

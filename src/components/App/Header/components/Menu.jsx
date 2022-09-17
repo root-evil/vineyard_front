@@ -3,7 +3,8 @@ import { ExitToApp, Person } from "@material-ui/icons";
 import { useTheme } from "@material-ui/styles";
 import clsx from "clsx";
 import React, { useState } from "react";
-import ui from "../../../store/ui";
+import { useCloserByNodes } from "../../../../hooks/useCloserByNodes";
+import ui from "../../../../store/ui";
 import ShowAndHide from "../../../System/ShowAndHide";
 
 const SelectTheme = ({ setOpen }) => {
@@ -62,12 +63,15 @@ const Menu = () => {
   const xs = useMediaQuery(theme.breakpoints.down("xs"));
   const [open, setOpen] = useState(false);
 
-  console.log(open);
+  const [mainBlock, setMainBlock] = useState(null);
+  const [absoluteBlock, setAbsoluteBlock] = useState(null);
+
+  useCloserByNodes(mainBlock, absoluteBlock, open, setOpen);
 
   return (
     <nav className="flex justify-end items-center w-full px-4">
       {!xs && (
-        <div className="relative">
+        <div className="relative" ref={setMainBlock}>
           <IconButton
             color="inherit"
             onClick={() => setOpen((prevState) => !prevState)}
@@ -75,7 +79,9 @@ const Menu = () => {
             <Person fontSize="medium" color="primary" />
 
             <ShowAndHide show={open}>
-              <SelectTheme setOpen={setOpen} />
+              <div ref={setAbsoluteBlock}>
+                <SelectTheme setOpen={setOpen} />
+              </div>
             </ShowAndHide>
           </IconButton>
         </div>
