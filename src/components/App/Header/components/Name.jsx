@@ -5,7 +5,7 @@ const Name = () => {
   const theme = useTheme();
 
   return (
-    <div className="hidden xs:flex mr-4 whitespace-nowrap flex-col justify-center">
+    <div className="flex mr-4 whitespace-nowrap flex-col justify-center">
       <div className="flex">
         <span
           style={{ color: theme.palette.primary.main }}
