@@ -1,6 +1,22 @@
-import React from "react";
+import { LinearProgress } from "@material-ui/core";
+import { StylesProvider } from "@material-ui/styles";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { BrowserRouter as Router } from "react-router-dom";
 import "./global.css";
+import Root from "./Root";
 
-ReactDOM.createRoot(document.getElementById("app")).render(<App />);
+const queryClient = new QueryClient();
+
+ReactDOM.createRoot(document.getElementById("app")).render(
+  <Router>
+    <QueryClientProvider client={queryClient}>
+      <StylesProvider>
+        <Suspense fallback={<LinearProgress />}>
+          <Root />
+        </Suspense>
+      </StylesProvider>
+    </QueryClientProvider>
+  </Router>
+);

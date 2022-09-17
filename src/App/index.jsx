@@ -1,48 +1,19 @@
 import React from "react";
-import {
-  Map,
-  Placemark,
-  Polygon,
-  TypeSelector,
-  YMaps,
-  ZoomControl,
-} from "react-yandex-maps";
+import MainContainer from "../MainContainer";
+import Footer from "./Footer";
+import Header from "./Header";
 
 const App = () => {
   return (
-    <div className="flex justify-center">
-      <YMaps>
-        <Map
-          width={500}
-          height={600}
-          defaultState={{ center: [55.75, 37.57], zoom: 10 }}
-        >
-          <TypeSelector />
+    <>
+      <Header />
 
-          <ZoomControl />
+      <div id="root">
+        <MainContainer />
+      </div>
 
-          <Placemark geometry={[55.7, 37.57]} />
-
-          <Polygon
-            options={{
-              hintContent: "Polygon",
-              fillColor: "#6699ff",
-              strokeWidth: 2,
-              opacity: 0.5,
-            }}
-            geometry={[
-              [
-                [55.752, 37.6175],
-                [55.75, 37.57],
-                [55.57, 37.12],
-                [55.1, 37],
-                [55, 36.9999],
-              ],
-            ]}
-          />
-        </Map>
-      </YMaps>
-    </div>
+      <Footer />
+    </>
   );
 };
 
