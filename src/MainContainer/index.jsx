@@ -15,6 +15,7 @@ export default memo(() => {
     const el = document.getElementById("filters");
 
     setWidth(document.documentElement.clientWidth - el.clientWidth - 15);
+    setHeight(el.clientHeight);
   }, []);
 
   return (
@@ -51,7 +52,7 @@ export default memo(() => {
           <YMaps>
             <Map
               width={width}
-              height={600}
+              height={height}
               defaultState={{
                 center: [45.19697869737061, 39.1890641332174],
                 zoom: 8.4,
