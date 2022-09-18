@@ -179,7 +179,7 @@ export default memo(() => {
 
         ref.current?.setCenter(allPolygons?.data?.center);
       }, 200);
-    } else {
+    } else if (allPolygons?.data?.bounds) {
       setTimeout(() => {
         ref.current?.setBounds(allPolygons?.data?.bounds);
       }, 200);
