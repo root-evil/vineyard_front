@@ -194,7 +194,7 @@ export default memo(() => {
     urlParams.id,
   ]);
 
-  usePressEscape(() => navigate(-1), !urlParams?.id);
+  usePressEscape(() => navigate("/"), !urlParams?.id);
 
   useEffect(() => {
     const el = document.getElementById("filters");
