@@ -35,6 +35,7 @@ import {
 import { usePressEscape } from "../../hooks/usePressEscape";
 import { useQueryTerritoryDetails } from "../../quieries/useQueryTerritoryDetails";
 import { useQueryTerritorys } from "../../quieries/useQueryTerritorys";
+import { get, showError } from "../../store/api";
 import MigomTable from "../System/MigomTable";
 import Filters from "./Filters";
 
@@ -218,7 +219,7 @@ export default memo(() => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBounds(ref.current?.getBounds());
-    }, 6000);
+    }, 2000);
 
     return () => {
       clearInterval(interval);
@@ -610,7 +611,24 @@ export default memo(() => {
             </div>
           )}
 
-          <div className="flex justify-end items-end">
+          <div className="flex justify-between items-end">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={async () => {
+                try {
+                  await get(
+                    `http://51.250.23.5:9001/users/contact/${detailsParams?.data?.id}`
+                  );
+                } catch (err) {
+                  showError(err);
+                  return;
+                }
+              }}
+            >
+              Детали
+            </Button>
+
             <Button
               variant="contained"
               color="primary"
@@ -618,7 +636,7 @@ export default memo(() => {
                 setParamsId(detailsParams?.data?.id);
               }}
             >
-              Детали
+              Связаться с владельцем
             </Button>
           </div>
         </div>
