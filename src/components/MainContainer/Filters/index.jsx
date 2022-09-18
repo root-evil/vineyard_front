@@ -33,8 +33,8 @@ const soilTypes = [
     value: "",
   },
   {
-    label: "Нет",
-    value: "Глина",
+    label: "Глина",
+    value: "Clay",
   },
   {
     label: "Пылеватая глина",
@@ -81,7 +81,7 @@ const soilTypes = [
   },
 ];
 
-export default memo(({ filtersValues, setFiltersValues }) => {
+export default memo(({ filtersValues, setFiltersValues, render }) => {
   const [loading, setLoading] = useState(false);
   const [height, setHeight] = useState();
   const [regions, setRegions] = useState([]);
@@ -144,7 +144,7 @@ export default memo(({ filtersValues, setFiltersValues }) => {
     <div className="overflow-y-auto px-4" style={{ height: height }}>
       {loading && <LinearProgress />}
 
-      <div className="flex flex-col">
+      <div className="flex flex-col" key={render}>
         <div className="mb-4">
           <h3 className="mb-1 text-sm">Регион</h3>
           <CustomSimpleMenu

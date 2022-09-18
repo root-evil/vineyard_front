@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import { get, showError } from "../store/api/index";
 
-export const useQueryTerritorys = (params, currentBounds, filters) => {
+export const useQueryTerritorys = (params, currentBounds) => {
   const p = {
     ...(params || {}),
     currentBounds,

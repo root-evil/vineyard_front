@@ -136,6 +136,7 @@ export default memo(() => {
   const [currentBounds, setCurrentBounds] = useState([]);
   const [paramsId, setParamsId] = useState("");
   const allPolygons = useQueryTerritorys(filters, currentBounds);
+  const [render, setRender] = useState(1);
   const params = parse(location.search);
 
   const xs = useMediaQuery(theme.breakpoints.down("xs"));
@@ -309,6 +310,7 @@ export default memo(() => {
               <Filters
                 filtersValues={filtersValues}
                 setFiltersValues={setFiltersValues}
+                render={render}
               />
             </div>
 
@@ -321,6 +323,8 @@ export default memo(() => {
                   onClick={() => {
                     setFiltersValues({});
                     setFilters({});
+
+                    setRender((prevState) => prevState + 1);
                   }}
                 >
                   Очистить
