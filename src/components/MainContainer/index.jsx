@@ -615,6 +615,16 @@ export default memo(() => {
             <Button
               variant="contained"
               color="primary"
+              onClick={() => {
+                setParamsId(detailsParams?.data?.id);
+              }}
+            >
+              Детали
+            </Button>
+
+            <Button
+              variant="contained"
+              color="primary"
               onClick={async () => {
                 try {
                   await get(
@@ -624,16 +634,6 @@ export default memo(() => {
                   showError(err);
                   return;
                 }
-              }}
-            >
-              Детали
-            </Button>
-
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                setParamsId(detailsParams?.data?.id);
               }}
             >
               Связаться с владельцем
