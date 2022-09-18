@@ -32,6 +32,7 @@ import {
   YMaps,
   ZoomControl,
 } from "react-yandex-maps";
+import { usePressEscape } from "../../hooks/usePressEscape";
 import { useQueryTerritoryDetails } from "../../quieries/useQueryTerritoryDetails";
 import { useQueryTerritorys } from "../../quieries/useQueryTerritorys";
 import MigomTable from "../System/MigomTable";
@@ -193,6 +194,8 @@ export default memo(() => {
     urlParams.id,
   ]);
 
+  usePressEscape(() => navigate(-1), !urlParams?.id);
+
   useEffect(() => {
     const el = document.getElementById("filters");
 
@@ -315,7 +318,7 @@ export default memo(() => {
               />
             </div>
 
-            <div className="flex justify-end items-end px-4">
+            <div className="flex justify-end items-end px-4 mb-4">
               {Object.keys(filters || {})?.length > 0 && (
                 <Button
                   variant="contained"
