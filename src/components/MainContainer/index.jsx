@@ -160,7 +160,7 @@ export default memo(() => {
     setTimeout(() => {
       console.log(ref.current?.getBounds());
       setCurrentBounds(ref.current?.getBounds());
-    }, 200);
+    }, 1000);
   }, []);
 
   useLayoutEffect(() => {
