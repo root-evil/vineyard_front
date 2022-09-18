@@ -158,9 +158,8 @@ export default memo(() => {
 
   useLayoutEffect(() => {
     setTimeout(() => {
-      console.log(ref.current?.getBounds());
       setCurrentBounds(ref.current?.getBounds());
-    }, 1000);
+    }, 700);
   }, []);
 
   useLayoutEffect(() => {
