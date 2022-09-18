@@ -8,7 +8,7 @@ const App = () => {
     <>
       <Header />
 
-      <div id="root">
+      <div className="relative" id="root">
         <MainContainer />
       </div>
 

@@ -7,6 +7,7 @@ export default memo(() => {
   return (
     <>
       <footer
+        id="footer"
         style={{ backgroundColor: theme.palette.primary.main }}
         className={`relative flex shrink-0`}
       >

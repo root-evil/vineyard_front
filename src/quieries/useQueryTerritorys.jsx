@@ -1,9 +1,9 @@
 import { useQuery } from "react-query";
 import { get, showError } from "../store/api/index";
 
-export const useQueryTerritorys = (params, currentBounds) => {
+export const useQueryTerritorys = (params, currentBounds, filters) => {
   const p = {
-    ...params,
+    ...(params || {}),
     currentBounds,
   };
 
@@ -12,7 +12,8 @@ export const useQueryTerritorys = (params, currentBounds) => {
     async () => {
       try {
         const { data } = await get(
-          `http://51.250.23.5:9001/map?bounds=${currentBounds}`
+          `http://51.250.23.5:9001/map?bounds=${currentBounds}`,
+          params
         );
 
         return data;

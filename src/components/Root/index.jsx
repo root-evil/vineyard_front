@@ -9,7 +9,6 @@ import { mainTheme } from "../../theme/mainTheme";
 import { redTheme } from "../../theme/redTheme";
 import App from "../App";
 import Error from "./Error";
-import Slider from "./Slider";
 
 export default view(() => {
   const { themeCurrent } = ui;
@@ -59,8 +58,6 @@ export default view(() => {
       <CssBaseline />
 
       <Error />
-
-      <Slider />
 
       <Suspense fallback={<LinearProgress />}>
         <Routes>

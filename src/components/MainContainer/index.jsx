@@ -35,6 +35,7 @@ import {
 import { useQueryTerritoryDetails } from "../../quieries/useQueryTerritoryDetails";
 import { useQueryTerritorys } from "../../quieries/useQueryTerritorys";
 import MigomTable from "../System/MigomTable";
+import Filters from "./Filters";
 
 /* 
  ref.current?.setCenter([55.7, 37.57])
@@ -130,9 +131,11 @@ export default memo(() => {
   const location = useLocation();
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(600);
+  const [filters, setFilters] = useState({});
+  const [filtersValues, setFiltersValues] = useState({});
   const [currentBounds, setCurrentBounds] = useState([]);
   const [paramsId, setParamsId] = useState("");
-  const allPolygons = useQueryTerritorys({}, currentBounds);
+  const allPolygons = useQueryTerritorys(filters, currentBounds);
   const params = parse(location.search);
 
   const xs = useMediaQuery(theme.breakpoints.down("xs"));
@@ -196,12 +199,24 @@ export default memo(() => {
       setHeight(el.clientHeight);
     };
 
+    init();
+
     document.addEventListener("resize", init, false);
     window.addEventListener("resize", init, false);
 
     return () => {
       document.removeEventListener("resize", init);
       window.removeEventListener("resize", init);
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBounds(ref.current?.getBounds());
+    }, 6000);
+
+    return () => {
+      clearInterval(interval);
     };
   }, []);
 
@@ -285,27 +300,42 @@ export default memo(() => {
       <div className="h-full w-full">
         <div className="flex flex-col h-full sm:flex-row">
           <div
-            className="w-full h-full max-w-full shadow-2xl border-r-2 border-[rgb(0 0 0 / 0.2)] sm:max-w-[300px]"
+            className="w-full  max-w-full shadow-2xl border-r-2 border-[rgb(0 0 0 / 0.2)] sm:max-w-[340px] "
             id="filters"
           >
             <div className="flex flex-col mt-2 text-base">
               <h1 className="text-center text-xl mb-6">Фильтры</h1>
 
-              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
-                Фильтр 1
-              </span>
-              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
-                Фильтр 2
-              </span>
-              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
-                Фильтр 3
-              </span>
-              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
-                Фильтр 4
-              </span>
-              <span className="mb-4 border-b  border-b-gray-200 pb-1 m-2">
-                Фильтр 5
-              </span>
+              <Filters
+                filtersValues={filtersValues}
+                setFiltersValues={setFiltersValues}
+              />
+            </div>
+
+            <div className="flex justify-end items-end px-4">
+              {Object.keys(filters || {})?.length > 0 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className="!mr-2"
+                  onClick={() => {
+                    setFiltersValues({});
+                    setFilters({});
+                  }}
+                >
+                  Очистить
+                </Button>
+              )}
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  setFilters(filtersValues);
+                }}
+              >
+                Применить
+              </Button>
             </div>
           </div>
 

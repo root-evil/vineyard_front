@@ -9,6 +9,7 @@ const Header = () => {
 
   return (
     <header
+      id="header"
       style={{ backgroundColor: theme.palette.primary.contrastText }}
       className="bg-white flex flex-col z-[1048] shadow-sm shadow-black/20"
     >
