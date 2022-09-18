@@ -175,11 +175,12 @@ export default memo(() => {
       setTimeout(() => {
         setCurrentBounds(allPolygons?.data?.bounds);
         ref.current?.setBounds(allPolygons?.data?.bounds);
+
         ref.current?.setCenter(allPolygons?.data?.center);
       }, 200);
     } else {
       setTimeout(() => {
-        ref.current?.setCenter([45.19697869737061, 39.1890641332174]);
+        ref.current?.setBounds(allPolygons?.data?.bounds);
       }, 200);
     }
   }, [
