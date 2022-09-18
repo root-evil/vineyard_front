@@ -156,7 +156,7 @@ export default memo(() => {
     setHeight(el.clientHeight);
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setTimeout(() => {
       setCurrentBounds(ref.current?.getBounds());
     }, 700);
