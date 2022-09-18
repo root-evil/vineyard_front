@@ -1,5 +1,5 @@
 import { IconButton } from "@material-ui/core";
-import { ExitToApp, Person } from "@material-ui/icons";
+import { ExitToApp, Help, Person } from "@material-ui/icons";
 import { useTheme } from "@material-ui/styles";
 import clsx from "clsx";
 import React, { useState } from "react";
@@ -68,6 +68,10 @@ const Menu = () => {
 
   return (
     <nav className="flex justify-end items-center w-full px-4">
+      <IconButton color="inherit" onClick={() => (ui.openHelp = true)}>
+        <Help fontSize="medium" color="primary" />
+      </IconButton>
+
       <div className="relative" ref={setMainBlock}>
         <IconButton
           color="inherit"

@@ -1,21 +1,22 @@
 import { useQuery } from "react-query";
+import { get, showError } from "../store/api";
 
-export const useQueryTerritoryDetails = (params, territoryId) => {
+export const useQueryTerritoryDetails = (params) => {
   const p = {
     ...params,
-    territoryId,
   };
 
   return useQuery(
     ["useQueryTerritoryDetails", p],
     async () => {
       try {
-        console.log(1);
+        const { data } = await get(
+          `http://51.250.23.5:9001/params/${params?.id}`
+        );
 
-        /*  const { data } = await get(
-          `${import.meta.env.VITE_API}/v1/admin/events/${eventId}/details`
-        ); */
+        return data;
       } catch (err) {
+        showError(err);
         return;
       }
     },

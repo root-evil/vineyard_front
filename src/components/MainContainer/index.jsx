@@ -1,5 +1,11 @@
-import { Drawer, IconButton, useMediaQuery, useTheme } from "@material-ui/core";
-import { CloseOutlined } from "@material-ui/icons";
+import {
+  Drawer,
+  IconButton,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
+} from "@material-ui/core";
+import { ArrowBack, CloseOutlined } from "@material-ui/icons";
 import { parse } from "query-string";
 import React, {
   memo,
@@ -8,11 +14,12 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryTerritoryDetails } from "../../quieries/useQueryTerritoryDetails";
 
 import {
   Map,
+  Placemark,
   Polygon,
   TypeSelector,
   YMaps,
@@ -25,55 +32,137 @@ import { useQueryTerritorys } from "../../quieries/useQueryTerritorys";
  
  */
 
+/* ref.current?.getBounds() */
+
+const converterFlooded = (flooded) => {
+  if (flooded === "No") {
+    return 0;
+  }
+
+  if (flooded === "From0To1") {
+    return 1;
+  }
+
+  if (flooded === "From1To3") {
+    return "1-3";
+  }
+
+  if (flooded === "From3To6") {
+    return "3-6";
+  }
+};
+
+const converterSoil = (soil) => {
+  if (soil === "Clay") {
+    return "Глина";
+  }
+
+  if (soil === "SiltyClay") {
+    return "Пылеватая глина";
+  }
+
+  if (soil === "SiltyClayLoam") {
+    return "Пылеватое-глинистый суглинок";
+  }
+
+  if (soil === "SandyClay") {
+    return "Опесчаненная глина";
+  }
+
+  if (soil === "SandyClayLoam") {
+    return "Опесчаненный глинистый суглинок";
+  }
+
+  if (soil === "ClayLoam") {
+    return "Глинистый суглинок";
+  }
+
+  if (soil === "Silt") {
+    return "Тонкий суглинок";
+  }
+
+  if (soil === "SiltLoam") {
+    return "Пылеватый суглинок";
+  }
+
+  if (soil === "Loam") {
+    return "Суглинок";
+  }
+
+  if (soil === "Sand") {
+    return "Песок";
+  }
+
+  if (soil === "LoamySand") {
+    return "Суглинистый песок";
+  }
+
+  if (soil === "SandyLoam") {
+    return "Опесчаненный суглинок";
+  }
+};
+
 export default memo(() => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const urlParams = useParams();
   const location = useLocation();
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(600);
-  const [openDetails, setOpenDetails] = useState(false);
   const allPolygons = useQueryTerritorys({});
   const params = parse(location.search);
 
   const xs = useMediaQuery(theme.breakpoints.down("xs"));
 
-  const details = useQueryTerritoryDetails(params, "");
+  const details = useQueryTerritoryDetails({ id: urlParams?.id, ...params });
 
   const ref = useRef();
 
   useLayoutEffect(() => {
     const el = document.getElementById("filters");
 
-    setWidth(document.documentElement.clientWidth - el.clientWidth - 15);
+    setWidth(window.innerWidth - el.clientWidth);
     setHeight(el.clientHeight);
   }, []);
 
   useLayoutEffect(() => {
     if (params?.lat && params?.lon) {
       setTimeout(() => {
-        setOpenDetails(true);
-
         ref.current?.setCenter([params?.lon, params?.lat]);
-
-        navigate(`/?lon=${params?.lon}&lat=${params?.lat}`);
       }, 100);
     } else if (allPolygons?.data?.center) {
       setTimeout(() => {
         ref.current?.setCenter(allPolygons?.data?.center);
       }, 100);
+    } else {
+      setTimeout(() => {
+        ref.current?.setCenter([45.19697869737061, 39.1890641332174]);
+      }, 100);
     }
-  }, [allPolygons?.data?.center, navigate, params?.lat, params?.lon]);
+  }, [
+    allPolygons?.data?.center,
+    navigate,
+    params.id,
+    params?.lat,
+    params?.lon,
+    urlParams?.id,
+  ]);
 
   useEffect(() => {
     const el = document.getElementById("filters");
 
     const init = () => {
-      setWidth(document.documentElement.clientWidth - el.clientWidth - 15);
+      setWidth(window.innerWidth - el.clientWidth - 15);
       setHeight(el.clientHeight);
     };
 
-    document.addEventListener("resize", init);
-    window.addEventListener("resize", init);
+    document.addEventListener("resize", init, false);
+    window.addEventListener("resize", init, false);
+
+    return () => {
+      document.removeEventListener("resize", init);
+      window.removeEventListener("resize", init);
+    };
   }, []);
 
   return (
@@ -113,9 +202,7 @@ export default memo(() => {
                 height={height}
                 instanceRef={ref}
                 defaultState={{
-                  center: allPolygons?.data?.center || [
-                    45.19697869737061, 39.1890641332174,
-                  ],
+                  center: [45.19697869737061, 39.1890641332174],
                   zoom: 10,
                 }}
               >
@@ -123,17 +210,29 @@ export default memo(() => {
 
                 <ZoomControl />
 
-                {/* <Placemark geometry={[55.7, 37.57]} /> */}
+                {allPolygons?.data?.markers?.map((item) => {
+                  return (
+                    <Placemark
+                      key={item?.id}
+                      geometry={item?.center}
+                      onClick={() => {
+                        ref.current?.setCenter(item?.center);
+                        navigate(
+                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                        );
+                      }}
+                    />
+                  );
+                })}
 
-                {allPolygons?.data?.data?.map((item) => {
+                {allPolygons?.data?.polygons?.map((item) => {
                   return (
                     <Polygon
                       key={item?.id}
                       onClick={() => {
-                        setOpenDetails(true);
                         ref.current?.setCenter(item?.center);
                         navigate(
-                          `/?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
                         );
                       }}
                       options={{
@@ -146,30 +245,6 @@ export default memo(() => {
                     />
                   );
                 })}
-                {/* 
-                <Polygon
-                  onClick={() => {
-                    setOpenDetails(true);
-                    ref.current?.setCenter([
-                      45.333314260624476, 39.38350121491304,
-                    ]);
-                    navigate("/?lon=45.333314260624476&lat=39.38350121491304");
-                  }}
-                  options={{
-                    hintContent: "Polygon",
-                    fillColor: "#6699ff",
-                    strokeWidth: 2,
-                    opacity: 0.5,
-                  }}
-                  geometry={[
-                    [
-                      [46.15385570157126, 39.12785595979559],
-                      [45.24365765915663, 39.25547737240801],
-                      [45.333314260624476, 39.38350121491304],
-                      [46.222824169574056, 39.5119293629748],
-                    ],
-                  ]}
-                /> */}
               </Map>
             </YMaps>
           </div>
@@ -179,34 +254,188 @@ export default memo(() => {
       <Drawer
         anchor="right"
         variant="persistent"
-        open={openDetails}
+        open={Boolean(urlParams?.id)}
         onClose={() => {
-          setOpenDetails(false);
           navigate("/");
         }}
       >
         <div
           style={{
-            width: xs ? document.documentElement.clientWidth : "25rem",
+            width: xs ? document.documentElement.clientWidth : "30rem",
           }}
           className="relative  p-4"
         >
           <IconButton
             className="!absolute !right-[15px] !top-0 !p-[10px]"
             onClick={() => {
-              setOpenDetails(false);
               navigate("/");
             }}
           >
             <CloseOutlined />
           </IconButton>
 
-          <h2 className="text-lg mt-6 mb-4"> Детали территории</h2>
+          <IconButton
+            className="!absolute  !top-0 !p-[10px]"
+            onClick={() => {
+              navigate(-1);
+            }}
+          >
+            <ArrowBack />
+          </IconButton>
+
+          <h2 className="text-lg mt-6 mb-4"> Параметры территории</h2>
+
+          {details?.isLoading && <LinearProgress />}
 
           <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
-            <span className="mr-4 whitespace-nowrap">Долгота, широта:</span>
-            <span className="text-left">45, 39</span>
+            <span className="mr-4 whitespace-nowrap">
+              Ср/знач угла ориентации, градусы.:
+            </span>
+            <span className="text-left">
+              {details?.data?.avg_relief_aspect}
+            </span>
           </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Ср/знач высоты местности, м.:
+            </span>
+            <span className="text-left">
+              {details?.data?.avg_relief_height}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Ср/знач угла местности, градусы.:
+            </span>
+            <span className="text-left">{details?.data?.avg_relief_slope}</span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Ср/знач солнечных дней:
+            </span>
+            <span className="text-left">{details?.data?.avg_sunny_days}</span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Кол-во затопленных месяцев в году:
+            </span>
+            <span className="text-left">
+              {converterFlooded(details?.data?.floodedMonths)}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">Лес:</span>
+            <span className="text-left">
+              {details?.data?.forest ? "Есть" : "Нет"}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Диапазон угла ориентации, градусы:
+            </span>
+            <span className="text-left">
+              {details?.data?.min_relief_aspect} -{" "}
+              {details?.data?.max_relief_aspect}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Диапазон высоты местности, м:
+            </span>
+            <span className="text-left">
+              {details?.data?.min_relief_height} -{" "}
+              {details?.data?.max_relief_height}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Диапазон угла местности, градусы:
+            </span>
+            <span className="text-left">
+              {details?.data?.min_relief_slope} -{" "}
+              {details?.data?.max_relief_slope}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+            <span className="mr-4 whitespace-nowrap">
+              Диапазон солнечных дней:
+            </span>
+            <span className="text-left">
+              {details?.data?.min_sunny_days} - {details?.data?.max_sunny_days}
+            </span>
+          </div>
+
+          {details?.data?.soil && (
+            <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+              <span className="mr-4 whitespace-nowrap">Тип почвы:</span>
+              <span className="text-left">
+                {converterSoil(details?.data?.soil)}
+              </span>
+            </div>
+          )}
+
+          {details?.data?.betterNearPolygons?.length > 0 && (
+            <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+              <span className="flex items-center mr-4 whitespace-nowrap">
+                Похожие полигоны с лучшими условиями:
+              </span>
+              <span className="flex flex-col text-left">
+                {details?.data?.betterNearPolygons?.map((item, index) => {
+                  return (
+                    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                    <a
+                      key={index}
+                      className="whitespace-nowrap"
+                      onClick={() => {
+                        ref.current?.setCenter(item?.center);
+                        navigate(
+                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                        );
+                      }}
+                    >
+                      {item?.center?.[0]}, {item?.center?.[1]};
+                    </a>
+                  );
+                })}
+              </span>
+            </div>
+          )}
+
+          {details?.data?.worseNearPolygons?.length > 0 && (
+            <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
+              <span className="flex items-center mr-4 whitespace-nowrap">
+                Похожие полигоны с условиями хуже:
+              </span>
+              <span className="flex flex-col text-left">
+                {details?.data?.worseNearPolygons?.map((item, index) => {
+                  return (
+                    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                    <a
+                      key={index}
+                      className="whitespace-nowrap"
+                      onClick={() => {
+                        ref.current?.setCenter(item?.center);
+                        navigate(
+                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                        );
+                      }}
+                    >
+                      {item?.center?.[0]}, {item?.center?.[1]};
+                    </a>
+                  );
+                })}
+              </span>
+            </div>
+          )}
         </div>
       </Drawer>
     </>

@@ -1,13 +1,15 @@
-import { CssBaseline } from "@material-ui/core";
+import { CssBaseline, LinearProgress } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/styles";
 import { view } from "@risingstack/react-easy-state";
-import React, { useLayoutEffect } from "react";
+import React, { Suspense, useLayoutEffect } from "react";
+import { Route, Routes } from "react-router-dom";
 import ui from "../../store/ui";
 import { greenTheme } from "../../theme/greenTheme";
 import { mainTheme } from "../../theme/mainTheme";
 import { redTheme } from "../../theme/redTheme";
 import App from "../App";
 import Error from "./Error";
+import Slider from "./Slider";
 
 export default view(() => {
   const { themeCurrent } = ui;
@@ -44,13 +46,29 @@ export default view(() => {
     }
   }, []);
 
+  useLayoutEffect(() => {
+    const key = localStorage.getItem("agroHelp");
+
+    if (!key) {
+      ui.openHelp = true;
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={themeReducer()}>
       <CssBaseline />
 
       <Error />
 
-      <App />
+      <Slider />
+
+      <Suspense fallback={<LinearProgress />}>
+        <Routes>
+          <Route path="/:id" element={<App />} />
+
+          <Route path="/" exact={true} element={<App />} />
+        </Routes>
+      </Suspense>
     </ThemeProvider>
   );
 });

@@ -6,20 +6,9 @@ export const useQueryTerritorys = (params) => {
     ["useQueryTerritorys", params],
     async () => {
       try {
-        const { data } = await get(`http://51.250.23.5:9001/polygons`);
+        const { data } = await get(`http://51.250.23.5:9001/map`);
 
-        const newObj = { ...data };
-
-        newObj?.data?.forEach((item, index) => {
-          item?.longitude?.forEach((g, indexG) => {
-            newObj.data[index].geo = [
-              ...(newObj.data[index].geo || []),
-              [g, item?.latitude?.[indexG]],
-            ];
-          });
-        });
-
-        return newObj;
+        return data;
       } catch (err) {
         console.log(err);
         showError(err);
