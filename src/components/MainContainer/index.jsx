@@ -158,6 +158,7 @@ export default memo(() => {
 
   useLayoutEffect(() => {
     setTimeout(() => {
+      console.log(ref.current?.getBounds());
       setCurrentBounds(ref.current?.getBounds());
     }, 200);
   }, []);
@@ -169,6 +170,7 @@ export default memo(() => {
       }, 200);
     } else if (allPolygons?.data?.center) {
       setTimeout(() => {
+        setCurrentBounds(allPolygons?.data?.bounds);
         ref.current?.setBounds(allPolygons?.data?.bounds);
         ref.current?.setCenter(allPolygons?.data?.center);
       }, 200);
