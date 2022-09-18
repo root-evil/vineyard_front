@@ -1,17 +1,13 @@
 import { useQuery } from "react-query";
 import { get, showError } from "../store/api";
 
-export const useQueryTerritoryDetails = (params) => {
-  const p = {
-    ...params,
-  };
-
+export const useQueryTerritoryDetails = (paramsId) => {
   return useQuery(
-    ["useQueryTerritoryDetails", p],
+    ["useQueryTerritoryDetails", paramsId],
     async () => {
       try {
         const { data } = await get(
-          `http://51.250.23.5:9001/params/${params?.id}`
+          `http://51.250.23.5:9001/details/${paramsId}`
         );
 
         return data;
@@ -25,7 +21,7 @@ export const useQueryTerritoryDetails = (params) => {
       refetchOnWindowFocus: false,
       refetchIntervalInBackground: false,
       keepPreviousData: false,
-      enabled: Boolean(params?.lon && params?.lat),
+      enabled: Boolean(paramsId),
     }
   );
 };

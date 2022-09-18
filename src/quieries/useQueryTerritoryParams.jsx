@@ -1,23 +1,21 @@
 import { useQuery } from "react-query";
-import { get, showError } from "../store/api/index";
+import { get, showError } from "../store/api";
 
-export const useQueryTerritorys = (params, currentBounds) => {
+export const useQueryTerritoryParams = (params) => {
   const p = {
     ...params,
-    currentBounds,
   };
 
   return useQuery(
-    ["useQueryTerritorys", p],
+    ["useQueryTerritoryParams", p],
     async () => {
       try {
         const { data } = await get(
-          `http://51.250.23.5:9001/map?bounds=${currentBounds}`
+          `http://51.250.23.5:9001/params/${params?.id}`
         );
 
         return data;
       } catch (err) {
-        console.log(err);
         showError(err);
         return;
       }
@@ -27,7 +25,7 @@ export const useQueryTerritorys = (params, currentBounds) => {
       refetchOnWindowFocus: false,
       refetchIntervalInBackground: false,
       keepPreviousData: false,
-      enabled: Boolean(currentBounds?.length > 1),
+      enabled: Boolean(params?.lon && params?.lat),
     }
   );
 };

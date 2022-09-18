@@ -1,22 +1,29 @@
 import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Drawer,
   IconButton,
   LinearProgress,
+  makeStyles,
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
-import { ArrowBack, CloseOutlined } from "@material-ui/icons";
+import { ArrowBack, Close, CloseOutlined } from "@material-ui/icons";
 import { parse } from "query-string";
 import React, {
   memo,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQueryTerritoryDetails } from "../../quieries/useQueryTerritoryDetails";
+import { useQueryTerritoryParams } from "../../quieries/useQueryTerritoryParams";
 
+import clsx from "clsx";
 import {
   Map,
   Placemark,
@@ -25,7 +32,9 @@ import {
   YMaps,
   ZoomControl,
 } from "react-yandex-maps";
+import { useQueryTerritoryDetails } from "../../quieries/useQueryTerritoryDetails";
 import { useQueryTerritorys } from "../../quieries/useQueryTerritorys";
+import MigomTable from "../System/MigomTable";
 
 /* 
  ref.current?.setCenter([55.7, 37.57])
@@ -102,19 +111,41 @@ const converterSoil = (soil) => {
   }
 };
 
+const useStyles = makeStyles({
+  paper: {
+    width: "100%",
+  },
+  close: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+  },
+});
+
 export default memo(() => {
   const theme = useTheme();
+  const classes = useStyles();
   const navigate = useNavigate();
   const urlParams = useParams();
   const location = useLocation();
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(600);
-  const allPolygons = useQueryTerritorys({});
+  const [currentBounds, setCurrentBounds] = useState([]);
+  const [paramsId, setParamsId] = useState("");
+  const allPolygons = useQueryTerritorys({}, currentBounds);
   const params = parse(location.search);
 
   const xs = useMediaQuery(theme.breakpoints.down("xs"));
 
-  const details = useQueryTerritoryDetails({ id: urlParams?.id, ...params });
+  const detailsParams = useQueryTerritoryParams(
+    {
+      id: urlParams?.id,
+      ...params,
+    },
+    currentBounds
+  );
+
+  const territoryDetails = useQueryTerritoryDetails(paramsId);
 
   const ref = useRef();
 
@@ -126,26 +157,34 @@ export default memo(() => {
   }, []);
 
   useLayoutEffect(() => {
+    setTimeout(() => {
+      setCurrentBounds(ref.current?.getBounds());
+    }, 200);
+  }, []);
+
+  useLayoutEffect(() => {
     if (params?.lat && params?.lon) {
       setTimeout(() => {
         ref.current?.setCenter([params?.lon, params?.lat]);
-      }, 100);
+      }, 200);
     } else if (allPolygons?.data?.center) {
       setTimeout(() => {
+        ref.current?.setBounds(allPolygons?.data?.bounds);
         ref.current?.setCenter(allPolygons?.data?.center);
-      }, 100);
+      }, 200);
     } else {
       setTimeout(() => {
         ref.current?.setCenter([45.19697869737061, 39.1890641332174]);
-      }, 100);
+      }, 200);
     }
   }, [
+    allPolygons?.data?.bounds,
     allPolygons?.data?.center,
     navigate,
     params.id,
     params?.lat,
     params?.lon,
-    urlParams?.id,
+    urlParams.id,
   ]);
 
   useEffect(() => {
@@ -163,6 +202,81 @@ export default memo(() => {
       document.removeEventListener("resize", init);
       window.removeEventListener("resize", init);
     };
+  }, []);
+
+  const columns = useMemo(() => {
+    return [
+      {
+        Header: "Месяц",
+        style: {
+          textAlign: "center",
+        },
+        disableSortBy: true,
+        accessor: (rowData) => {
+          return rowData?.month;
+        },
+      },
+      {
+        Header: "Ср. кол-во осадков",
+        style: {
+          textAlign: "center",
+        },
+        disableSortBy: true,
+        accessor: (rowData) => {
+          return rowData?.pavg;
+        },
+      },
+      {
+        Header: "Макс. кол-во осадков",
+        style: {
+          textAlign: "center",
+        },
+        disableSortBy: true,
+        accessor: (rowData) => {
+          return rowData?.pmax;
+        },
+      },
+      {
+        Header: "Мин. кол-во осадков",
+        style: {
+          textAlign: "center",
+        },
+        disableSortBy: true,
+        accessor: (rowData) => {
+          return rowData?.pmin;
+        },
+      },
+      {
+        Header: "Ср. темп.",
+        style: {
+          textAlign: "center",
+        },
+        disableSortBy: true,
+        accessor: (rowData) => {
+          return rowData?.tavg;
+        },
+      },
+      {
+        Header: "Макс. темп.",
+        style: {
+          textAlign: "center",
+        },
+        disableSortBy: true,
+        accessor: (rowData) => {
+          return rowData?.tmax;
+        },
+      },
+      {
+        Header: "Мин. темп.",
+        style: {
+          textAlign: "center",
+        },
+        disableSortBy: true,
+        accessor: (rowData) => {
+          return rowData?.tmin;
+        },
+      },
+    ];
   }, []);
 
   return (
@@ -218,7 +332,7 @@ export default memo(() => {
                       onClick={() => {
                         ref.current?.setCenter(item?.center);
                         navigate(
-                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                          `/${item?.paramId}?lon=${item?.center[0]}&lat=${item?.center[1]}`
                         );
                       }}
                     />
@@ -232,7 +346,7 @@ export default memo(() => {
                       onClick={() => {
                         ref.current?.setCenter(item?.center);
                         navigate(
-                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                          `/${item?.paramId}?lon=${item?.center[0]}&lat=${item?.center[1]}`
                         );
                       }}
                       options={{
@@ -285,14 +399,29 @@ export default memo(() => {
 
           <h2 className="text-lg mt-6 mb-4"> Параметры территории</h2>
 
-          {details?.isLoading && <LinearProgress />}
+          {detailsParams?.isLoading && <LinearProgress />}
+
+          <div className="flex justify-center mb-4">
+            <div
+              className={clsx(
+                "relative flex justify-center items-center rounded-full w-[65px] h-[65px] border-2 text-xl  p-5",
+                detailsParams?.data?.scoring <= 33.3333333 && "border-red-600",
+                detailsParams?.data?.scoring > 33.3333333 &&
+                  detailsParams?.data?.scoring <= 66.6666666 &&
+                  "border-yellow-600",
+                detailsParams?.data?.scoring > 66.6666666 && "border-green-600"
+              )}
+            >
+              <span className="text-xl">{detailsParams?.data?.scoring}</span>
+            </div>
+          </div>
 
           <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
             <span className="mr-4 whitespace-nowrap">
               Ср/знач угла ориентации, градусы.:
             </span>
             <span className="text-left">
-              {details?.data?.avg_relief_aspect}
+              {detailsParams?.data?.avg_relief_aspect}
             </span>
           </div>
 
@@ -301,7 +430,7 @@ export default memo(() => {
               Ср/знач высоты местности, м.:
             </span>
             <span className="text-left">
-              {details?.data?.avg_relief_height}
+              {detailsParams?.data?.avg_relief_height}
             </span>
           </div>
 
@@ -309,14 +438,18 @@ export default memo(() => {
             <span className="mr-4 whitespace-nowrap">
               Ср/знач угла местности, градусы.:
             </span>
-            <span className="text-left">{details?.data?.avg_relief_slope}</span>
+            <span className="text-left">
+              {detailsParams?.data?.avg_relief_slope}
+            </span>
           </div>
 
           <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
             <span className="mr-4 whitespace-nowrap">
               Ср/знач солнечных дней:
             </span>
-            <span className="text-left">{details?.data?.avg_sunny_days}</span>
+            <span className="text-left">
+              {detailsParams?.data?.avg_sunny_days}
+            </span>
           </div>
 
           <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
@@ -324,14 +457,14 @@ export default memo(() => {
               Кол-во затопленных месяцев в году:
             </span>
             <span className="text-left">
-              {converterFlooded(details?.data?.floodedMonths)}
+              {converterFlooded(detailsParams?.data?.floodedMonths)}
             </span>
           </div>
 
           <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
             <span className="mr-4 whitespace-nowrap">Лес:</span>
             <span className="text-left">
-              {details?.data?.forest ? "Есть" : "Нет"}
+              {detailsParams?.data?.forest ? "Есть" : "Нет"}
             </span>
           </div>
 
@@ -340,8 +473,8 @@ export default memo(() => {
               Диапазон угла ориентации, градусы:
             </span>
             <span className="text-left">
-              {details?.data?.min_relief_aspect} -{" "}
-              {details?.data?.max_relief_aspect}
+              {detailsParams?.data?.min_relief_aspect} -{" "}
+              {detailsParams?.data?.max_relief_aspect}
             </span>
           </div>
 
@@ -350,8 +483,8 @@ export default memo(() => {
               Диапазон высоты местности, м:
             </span>
             <span className="text-left">
-              {details?.data?.min_relief_height} -{" "}
-              {details?.data?.max_relief_height}
+              {detailsParams?.data?.min_relief_height} -{" "}
+              {detailsParams?.data?.max_relief_height}
             </span>
           </div>
 
@@ -360,8 +493,8 @@ export default memo(() => {
               Диапазон угла местности, градусы:
             </span>
             <span className="text-left">
-              {details?.data?.min_relief_slope} -{" "}
-              {details?.data?.max_relief_slope}
+              {detailsParams?.data?.min_relief_slope} -{" "}
+              {detailsParams?.data?.max_relief_slope}
             </span>
           </div>
 
@@ -370,26 +503,27 @@ export default memo(() => {
               Диапазон солнечных дней:
             </span>
             <span className="text-left">
-              {details?.data?.min_sunny_days} - {details?.data?.max_sunny_days}
+              {detailsParams?.data?.min_sunny_days} -{" "}
+              {detailsParams?.data?.max_sunny_days}
             </span>
           </div>
 
-          {details?.data?.soil && (
+          {detailsParams?.data?.soil && (
             <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
               <span className="mr-4 whitespace-nowrap">Тип почвы:</span>
               <span className="text-left">
-                {converterSoil(details?.data?.soil)}
+                {converterSoil(detailsParams?.data?.soil)}
               </span>
             </div>
           )}
 
-          {details?.data?.betterNearPolygons?.length > 0 && (
+          {detailsParams?.data?.betterNearPolygons?.length > 0 && (
             <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
               <span className="flex items-center mr-4 whitespace-nowrap">
                 Похожие полигоны с лучшими условиями:
               </span>
               <span className="flex flex-col text-left">
-                {details?.data?.betterNearPolygons?.map((item, index) => {
+                {detailsParams?.data?.betterNearPolygons?.map((item, index) => {
                   return (
                     // eslint-disable-next-line jsx-a11y/anchor-is-valid
                     <a
@@ -398,7 +532,7 @@ export default memo(() => {
                       onClick={() => {
                         ref.current?.setCenter(item?.center);
                         navigate(
-                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                          `/${item?.paramId}?lon=${item?.center[0]}&lat=${item?.center[1]}`
                         );
                       }}
                     >
@@ -410,13 +544,13 @@ export default memo(() => {
             </div>
           )}
 
-          {details?.data?.worseNearPolygons?.length > 0 && (
+          {detailsParams?.data?.worseNearPolygons?.length > 0 && (
             <div className="flex justify-between mb-2 pb-2 border-b border-gray-200">
               <span className="flex items-center mr-4 whitespace-nowrap">
                 Похожие полигоны с условиями хуже:
               </span>
               <span className="flex flex-col text-left">
-                {details?.data?.worseNearPolygons?.map((item, index) => {
+                {detailsParams?.data?.worseNearPolygons?.map((item, index) => {
                   return (
                     // eslint-disable-next-line jsx-a11y/anchor-is-valid
                     <a
@@ -425,7 +559,7 @@ export default memo(() => {
                       onClick={() => {
                         ref.current?.setCenter(item?.center);
                         navigate(
-                          `/${item?.id}?lon=${item?.center[0]}&lat=${item?.center[1]}`
+                          `/${item?.paramId}?lon=${item?.center[0]}&lat=${item?.center[1]}`
                         );
                       }}
                     >
@@ -436,8 +570,44 @@ export default memo(() => {
               </span>
             </div>
           )}
+
+          <div className="flex justify-end items-end">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setParamsId(detailsParams?.data?.id);
+              }}
+            >
+              Детали
+            </Button>
+          </div>
         </div>
       </Drawer>
+
+      <Dialog
+        open={Boolean(paramsId)}
+        disableEnforceFocus={true}
+        onClick={(e) => e.stopPropagation()}
+        classes={{ paper: classes.paper }}
+        onClose={() => setParamsId("")}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          {" "}
+          <IconButton onClick={() => setParamsId("")} className={classes.close}>
+            <Close />
+          </IconButton>
+          Детали
+        </DialogTitle>
+
+        <DialogContent>
+          <div className="w-full overflow-hidden relative min-h-96 max-h-96">
+            <MigomTable columns={columns} data={territoryDetails?.data || []} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 });
